@@ -1,0 +1,15 @@
+{
+  "duration": 6,
+  "commands": [
+    {
+      "name": "ServiceCheck",
+      "command": "sh",
+      "options": "/Users/harvindersingh/shell_script/checkSpace.sh"
+    },
+    {
+      "name": "HaproxyCheck",
+      "command": "sh",
+      "options": "/Users/harvindersingh/shell_script/haproxy.sh"
+    }
+  ]
+}
