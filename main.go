@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/goPractice/system"
 )
@@ -18,17 +19,31 @@ func metrics(w http.ResponseWriter, r *http.Request) {
 	var d, s string
 	for _, commands := range jsonConfig.Commands {
 		name := commands.Name + "_" + commands.Type
-		s = "# HELP " + name + " The total number of HTTP requests.\n"
-		s = s + "# TYPE " + name + " counter"
+		s = "# HELP " + name + " check status of the service 0 = OK | 1 = WARNING | 2 = CRITICAL | 3 = UNKNOWN\n"
+		s = s + "# TYPE " + name + " Untyped"
 		d += s + "\n"
 		//name := commands.Name
-		d += name + "{type=" + commands.Lables.Type + "} " + string(data.Result[commands.Name]) + "\n\n"
+
+		switch strings.TrimSpace(string(data.Result[commands.Name])) {
+		case "0":
+			fmt.Println("OK")
+			d += name + `{type="` + commands.Lables.Type + `",status="OK"} ` + string(data.Result[commands.Name]) + ``
+		case "1":
+			fmt.Println("WARNING")
+			d += name + `{type="` + commands.Lables.Type + `",status="WARNING"} ` + string(data.Result[commands.Name]) + ``
+		case "2":
+			fmt.Println("CRITICAL")
+			d += name + `{type="` + commands.Lables.Type + `",status="CRITICAL"} ` + string(data.Result[commands.Name]) + ``
+		default:
+			fmt.Println("UNKNOWN")
+			d += name + `{type="` + commands.Lables.Type + `",status="UNKNOWN"} ` + string(data.Result[commands.Name]) + ``
+		}
 	}
 	fmt.Fprintf(w, d)
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome!!")
+	fmt.Fprintf(w, "<a href=/metrics>View Matrics</a>")
 }
 
 func parseConfig() {

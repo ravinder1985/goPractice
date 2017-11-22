@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 	"time"
@@ -45,6 +44,7 @@ var jsonConfig JSON
 // Poll would parse configs and run them every interval.
 func Poll(data *Data, jsonConfig JSON) {
 	duration := jsonConfig.Duration
+	go ConfigCommand(jsonConfig, data)
 	for {
 		<-time.After(time.Duration(duration) * time.Second)
 		go ConfigCommand(jsonConfig, data)
@@ -58,7 +58,7 @@ func ConfigCommand(jsonConfig JSON, data *Data) {
 		command := commands.Command
 		options := commands.Options
 		if data.Result == nil {
-			fmt.Println("Allocate memory")
+			//fmt.Println("Allocate memory")
 			data.Result = make(map[string][]byte, 1)
 		}
 		if options == nil {
@@ -69,6 +69,7 @@ func ConfigCommand(jsonConfig JSON, data *Data) {
 			data.Result[name] = out
 			//fmt.Printf("%s: %s", name, out)
 		} else {
+			//fmt.Println(options)
 			out, err := exec.Command(command, options...).Output()
 			if (err) != nil {
 				log.Fatal(err)
